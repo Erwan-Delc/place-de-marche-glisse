@@ -27,3 +27,26 @@ jobs:
       - name: Lancer les tests
         run: |
           pytest
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v3
+
+      - name: Créer l'archive ZIP
+        run: |
+          zip -r place-de-marche-glisse.zip . -x "*.git*"
+
+      - name: Publier une release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Release v1.0.${{ github.run_number }}"
+          body: "Version automatique générée par CI"
+          files: place-de-marche-glisse.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
